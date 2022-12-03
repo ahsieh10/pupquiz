@@ -55,3 +55,4 @@ def segment(input_shape, n_labels, kernel=3, pool_size=(2, 2)):
     print("Decoding Complete!")
     
     model = tf.keras.Model(inputs=inputs, outputs=logits, name="Segment Dog")
+    return model
