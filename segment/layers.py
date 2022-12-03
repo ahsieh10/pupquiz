@@ -61,3 +61,87 @@ class MaxUnpool2D(tf.keras.layers.Layer):
                      input_shape[2] * self.size[1],
                      input_shape[3]]
         return tf.reshape(ret, out_shape)
+
+
+class Encoder(tf.keras.layers.layer):
+    def __init__(self, filters, kernel=3, conv_layers=2, **kwargs):
+        """
+        filters: the number of desired output channels for each Conv2D in the block
+        kernel: size of applied kernel
+        conv_layers: (2 or 3) the number of convolution layers
+        """
+        super(Encoder, self).__init__(**kwargs)
+        self.filters = filters
+        self.kernel = kernel
+        self.conv_layers = conv_layers
+
+        if self.conv_layers == 2:
+            self.conv2D_1 = tf.keras.layers.Conv2D(self.filters, [self.kernel, self.kernel], padding="same")
+            self.bn1 = tf.keras.layers.BatchNormalization()
+            self.conv2D_2 = tf.keras.layers.Conv2D(self.filters, [self.kernel, self.kernel], padding="same")
+            self.bn2 = tf.keras.layers.BatchNormalization()
+        elif self.conv_layers == 3:
+            self.conv2D_3 = tf.keras.layers.Conv2D(self.filters, [self.kernel, self.kernel], padding="same")
+            self.bn3 = tf.keras.layers.BatchNormalization()
+        else:
+            print("Error in Encoder Initialization.")
+    
+    def call(self, inputs, **kwargs):
+        conv1 = self.conv2D_1(inputs)
+        conv1 = self.bn1(conv1)
+        conv1 = tf.keras.layers.LeakyReLU(conv1)
+
+        conv2 = self.conv2D_2(conv1)
+        conv2 = self.bn2(conv2)
+        final = tf.keras.layers.LeakyReLU(conv2)
+
+        if self.conv_layers == 3:
+            conv3 = self.conv2D_3(final)
+            conv3 = self.bn3(conv3)
+            final = tf.keras.layers.LeakyReLU(conv3)
+
+        return final
+
+class Decoder(tf.keras.layers.layer):
+    def __init__(self, filters, kernel=3, conv_layers=2, final=False, **kwargs):
+        """
+        filters: the number of desired output channels for each Conv2D in the block
+        kernel: size of applied kernel
+        conv_layers: (2 or 3) the number of convolution layers
+        final: is it the final decoder in the block sequence
+        """
+        super(Decoder, self).__init__(**kwargs)
+        self.filters = filters
+        self.kernel = kernel
+        self.conv_layers = conv_layers
+        self.final = final
+
+        if self.conv_layers == 1:
+            self.conv2D_1 = tf.keras.layers.Conv2D(self.filters, [self.kernel, self.kernel], padding="same")
+            self.bn1 = tf.keras.layers.BatchNormalization()
+        elif self.conv_layers == 2:
+            self.conv2D_2 = tf.keras.layers.Conv2D(self.filters, [self.kernel, self.kernel], padding="same")
+            self.bn2 = tf.keras.layers.BatchNormalization()
+        elif self.conv_layers == 3:
+            self.conv2D_3 = tf.keras.layers.Conv2D(self.filters, [self.kernel, self.kernel], padding="same")
+            self.bn3 = tf.keras.layers.BatchNormalization()
+        else:
+            print("Error in Decoder Initialization.")
+    
+    def call(self, inputs, **kwargs):
+        conv1 = self.conv2D_1(inputs)
+        conv1 = self.bn1(conv1)
+        conv1 = tf.keras.layers.LeakyReLU(conv1)
+
+        if not self.final:
+            conv2 = self.conv2D_2(conv1)
+            conv2 = self.bn2(conv2)
+            final = tf.keras.layers.LeakyReLU(conv2)
+        else:
+            return conv1
+            
+        if self.conv_layers == 3:
+            conv3 = self.conv2D_3(final)
+            conv3 = self.bn3(conv3)
+            final = tf.keras.layers.LeakyReLU(conv3)
+        return final
