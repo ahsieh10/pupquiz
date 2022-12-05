@@ -97,10 +97,9 @@ def load_images(self, image_group):
     return images
 
 
-if __name__ == "__main__":
-    data_dir = "../data/images"
-    trimap_dir = "../data/annotations/trimaps"
-    # Load in the Data
+def get_generators(data_dir, trimap_dir, BATCH_SIZE):
+    # data_dir = "../data/images"
+    # trimap_dir = "../data/annotations/trimaps"
     input_image_paths = sorted(
         [os.path.join(data_dir, fname) for fname in os.listdir(data_dir) if fname.endswith(".jpg")]
     )
@@ -141,3 +140,6 @@ if __name__ == "__main__":
 
     train_generator = Generator(train_input_imgs, train_targets)
     val_generator = Generator(val_input_imgs, val_targets)
+    return train_generator, val_generator
+
+    
