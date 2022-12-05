@@ -63,7 +63,7 @@ class MaxUnpool2D(tf.keras.layers.Layer):
         return tf.reshape(ret, out_shape)
 
 
-class Encoder(tf.keras.layers.layer):
+class Encoder(tf.keras.layers.Layer):
     def __init__(self, filters, kernel=3, conv_layers=2, **kwargs):
         """
         filters: the number of desired output channels for each Conv2D in the block
@@ -102,7 +102,7 @@ class Encoder(tf.keras.layers.layer):
 
         return final
 
-class Decoder(tf.keras.layers.layer):
+class Decoder(tf.keras.layers.Layer):
     def __init__(self, filters, kernel=3, conv_layers=2, final=False, **kwargs):
         """
         filters: the number of desired output channels for each Conv2D in the block
