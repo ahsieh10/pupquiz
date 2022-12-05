@@ -2,7 +2,7 @@ import tensorflow as tf
 from layers import MaxPoolWithArgmax2D, MaxUnpool2D, Encoder, Decoder
 
 def segment(input_shape, n_labels, kernel=3, pool_size=(2, 2)):
-    inputs = tf.keras.Iput(shape=input_shape)
+    inputs = tf.keras.Input(shape=input_shape)
 
     # Encoder 1
     enc1 = Encoder(filters=64, kernel=kernel)(inputs)
