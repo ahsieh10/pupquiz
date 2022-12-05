@@ -49,7 +49,7 @@ def segment(input_shape, n_labels, kernel=3, pool_size=(2, 2)):
     conv = tf.keras.layers.Conv2D(n_labels, (1, 1), padding="valid")(decode5)
     norm = tf.keras.layers.BatchNormalization()(conv)
     out = tf.reshape((input_shape[0] * input_shape[1], n_labels),
-                    input_shape=(input_shape[0], input_shape[1], n_labels))(norm)
+                    shape=(input_shape[0], input_shape[1], n_labels))(norm)
 
     logits = tf.keras.layers.Softmax(out)
     print("Decoding Complete!")
