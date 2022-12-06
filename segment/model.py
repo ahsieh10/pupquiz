@@ -1,9 +1,8 @@
 import tensorflow as tf
 from layers import MaxPoolWithArgmax2D, MaxUnpool2D, Encoder, Decoder
-from keras.layers import Input
 
 def segment(input_shape, n_labels, kernel=3, pool_size=(2, 2)):
-    inputs = Input(shape=input_shape)
+    inputs = tf.keras.layers.Input(shape=input_shape)
 
     conv_1 = tf.keras.layers.Conv2D(64, (kernel, kernel), padding="same")(inputs)
     conv_1 = tf.keras.layers.BatchNormalization()(conv_1)
@@ -65,7 +64,6 @@ def segment(input_shape, n_labels, kernel=3, pool_size=(2, 2)):
     #print(pool_5.shape)
 
     unpool_1 = MaxUnpool2D(pool_size)([pool_5, mask_5])
-    #print(unpool_1.shape)
 
     conv_14 = tf.keras.layers.Conv2D(512, (kernel, kernel), padding="same")(unpool_1)
     conv_14 = tf.keras.layers.BatchNormalization()(conv_14)

@@ -82,8 +82,7 @@ class MaxUnpool2D(tf.keras.layers.Layer):
             mask_shape[2] * self.size[1],
             mask_shape[3],
         )
-
-
+ 
 class Encoder(tf.keras.layers.Layer):
     def __init__(self, filters, kernel=3, conv_layers=2, **kwargs):
         """
