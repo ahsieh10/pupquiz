@@ -1,7 +1,6 @@
 import tensorflow as tf
 import os
 import matplotlib.pyplot as plt
-from tensorflow.keras.utils import load_img, img_to_array
 import numpy as np
 import random
 import model
@@ -25,10 +24,10 @@ random.Random(1337).shuffle(input_image_paths)
 random.Random(1337).shuffle(trimap_image_paths)
 
 def path_to_input_image(path):
-    return img_to_array(load_img(path, target_size = img_size))
+    return tf.keras.utils.img_to_array(tf.keras.utils.load_img(path, target_size = img_size))
 
 def path_to_target(path):
-    img = img_to_array(load_img(path, target_size = img_size, color_mode = "grayscale"))
+    img = tf.keras.utils.img_to_array(tf.keras.utils.load_img(path, target_size = img_size, color_mode = "grayscale"))
     img = img.astype("uint8") - 1
     return img
 
@@ -50,11 +49,10 @@ seg = model.segment((256,256,3), 3)
 
 seg.compile(optimizer ="rmsprop", loss = "sparse_categorical_crossentropy")
 
-seg.summary()
+#seg.summary()
 
-'''
+
 seg.fit(train_input_imgs, train_targets,
                     epochs=50,
-                    batch_size=64,
+                    batch_size=8,
                     validation_data=(val_input_imgs, val_targets))
-'''

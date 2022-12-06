@@ -1,5 +1,4 @@
 import tensorflow as tf
-import tensorflow.keras.backend as K
 
 class MaxPoolWithArgmax2D(tf.keras.layers.Layer):
     def __init__(self, pool_size=(2, 2), strides=(2, 2), padding="same", **kwargs):
@@ -18,7 +17,7 @@ class MaxPoolWithArgmax2D(tf.keras.layers.Layer):
         output, argmax = tf.nn.max_pool_with_argmax(
             inputs, ksize=ksize, strides=strides, padding=padding
         )
-        argmax = tf.cast(argmax, K.floatx())
+        argmax = tf.cast(argmax, tf.keras.backend.floatx())
         return [output, argmax]
 
     def compute_output_shape(self, input_shape):
@@ -56,7 +55,7 @@ class MaxUnpool2D(tf.keras.layers.Layer):
         self.output_shape1 = output_shape
 
         # calculation indices for batch, height, width and feature maps
-        one_like_mask = K.ones_like(mask, dtype="int32")
+        one_like_mask = tf.keras.backend.ones_like(mask, dtype="int32")
         batch_shape = tf.concat([[input_shape[0]], [1], [1], [1]], axis=0)
         batch_range = tf.reshape(
             tf.range(output_shape[0], dtype="int32"), shape=batch_shape

@@ -3,7 +3,6 @@ import numpy as np
 import cv2
 from sklearn import preprocessing
 import tensorflow as tf
-from tensorflow.keras.utils import load_img, img_to_array
 
 class Generator(tf.keras.utils.Sequence):
     def __init__(self, data, trimap, batch_size=32, shuffle_images=True, image_min_side=24):
@@ -90,7 +89,7 @@ def resize_image(self, img, min_side_len):
 def load_images(self, image_group):
     images = []
     for image_path in image_group:
-        img = img_to_array(load_img(image_path))
+        img = tf.keras.utils.img_to_array(tf.keras.utils.load_img(image_path))
         img = self.resize_image(img)
         images.append(img)
 
@@ -118,10 +117,10 @@ def get_generators(data_dir, trimap_dir, BATCH_SIZE):
     np.random.shuffle(trimap_image_paths)
 
     def path_to_input_image(path):
-        return img_to_array(load_img(path))
+        return tf.keras.utils.img_to_array(tf.keras.utils.load_img(path))
 
     def path_to_target(path):
-        img = img_to_array(load_img(path, color_mode = "grayscale"))
+        img = tf.keras.utils.img_to_array(tf.keras.utils.load_img(path, color_mode = "grayscale"))
         img = img.astype("uint8") - 1
         return img
 
