@@ -111,4 +111,4 @@ class CustomSequential(tf.keras.Sequential):
         return self.batch_step(data, training=False)
 
     def predict_step(self, inputs):
-        return self(x)
+        return self(inputs)
