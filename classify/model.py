@@ -56,7 +56,7 @@ def get_default_CNN_model():
         metrics=["categorical_accuracy"],
     )
 
-    return SimpleNamespace(model=model, epochs=12, batch_size=50)
+    return SimpleNamespace(model=model, epochs=15, batch_size=50)
 
 
 ###############################################################################################

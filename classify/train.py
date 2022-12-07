@@ -82,8 +82,8 @@ def preprocess(task, X0, X1, X0_filename, X1_filename):
         ]
     )
     for i in range(len(X0)):
-        if task == 1:
-            file_path = "annotations/xmls/" + X0_filename[i][0: X0_filename[i].find('.jpg')] + ".xml"
+        if int(task) == 1:
+            file_path = "data/xmls/" + X0_filename[i][0: X0_filename[i].find('.jpg')] + ".xml"
             one_file = Path(file_path)
             if one_file.exists():
                 box = read_content(file_path)
@@ -97,10 +97,9 @@ def preprocess(task, X0, X1, X0_filename, X1_filename):
         X0[i] = input_prep_fn(tf.convert_to_tensor(cropped))
 
     for i in range(len(X1)):
-        if task == 1:
-            file_path = "annotations/xmls/" + X1_filename[i][0: X1_filename[i].find('.jpg')] + ".xml"
+        if int(task) == 1:
+            file_path = "data/xmls/" + X1_filename[i][0: X1_filename[i].find('.jpg')] + ".xml"
             one_file = Path(file_path)
-            print(file_path)
             if one_file.exists():
                 box = read_content(file_path)
                 xmin = box[0]
@@ -111,7 +110,6 @@ def preprocess(task, X0, X1, X0_filename, X1_filename):
         else:
             cropped = X1[i]
         X1[i] = input_prep_fn(tf.convert_to_tensor(cropped))
-
     X0 = tf.convert_to_tensor(X0)
     X1 = tf.convert_to_tensor(X1)
     
@@ -150,6 +148,12 @@ def run_task(task, data, epochs=None, batch_size=None):
         batch_size      = batch_size,
         validation_data = (X1, Y1),
     )
+    if int(task) == 2:
+        args.model.save_weights("naive.hdf5")
+        print("save weight done.. (naive)")
+    else:
+        args.model.save_weights("boxed.hdf5")
+        print("save weight done.. (box)")
 
     return args.model
 
