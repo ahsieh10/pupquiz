@@ -5,6 +5,7 @@ import tensorflow as tf
 from model import CustomSequential
 
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
 tf.config.run_functions_eagerly(True)
 tf.data.experimental.enable_debug_mode()
@@ -13,12 +14,12 @@ tf.data.experimental.enable_debug_mode()
 ###############################################################################################
 
 def read_content(xml_file: str):
-    '''taken from https://stackoverflow.com/questions/53317592/reading-pascal-voc-annotations-in-python'''
+    '''taken and modified from https://stackoverflow.com/questions/53317592/reading-pascal-voc-annotations-in-python'''
 
     tree = ET.parse(xml_file)
     root = tree.getroot()
 
-    list_with_all_boxes = []
+    box = []
 
     for boxes in root.iter('object'):
 
@@ -31,10 +32,9 @@ def read_content(xml_file: str):
         ymax = int(boxes.find("bndbox/ymax").text)
         xmax = int(boxes.find("bndbox/xmax").text)
 
-        list_with_single_boxes = [xmin, ymin, xmax, ymax]
-        list_with_all_boxes.append(list_with_single_boxes)
+        box = [xmin, ymin, xmax, ymax]
 
-    return filename, list_with_all_boxes
+    return box
 
 
 def get_data():
@@ -52,30 +52,65 @@ def get_data():
     import tensorflow_datasets as tfds
 
     D0, D1 = tfds.load(
-            "oxford_iiit_pet", split=["train[:80%]", "test"])
+        "oxford_iiit_pet", split=["train[:80%]", "train[80%:]"])
     
     X0, X1 = [[r['image'] for r in tfds.as_numpy(D)] for D in (D0, D1)]
+    X0_filename, X1_filename = [[r['file_name'].decode('ascii') for r in tfds.as_numpy(D)] for D in (D0, D1)]
     Y0, Y1 = [np.array([r['label'] for r in tfds.as_numpy(D)]) for D in (D0, D1)]
 
 
-    return X0, Y0, X1, Y1, D0, D1
+    return X0, Y0, X1, Y1, X0_filename, X1_filename
 
 
 ###############################################################################################
 
-def preprocess(X0, X1):
+def preprocess(task, X0, X1, X0_filename, X1_filename):
+    """
+    Crops images down to bounding box and resizes them to 150 by 150 tensors.
+
+    :param task: 
+    :param X0: Training image set
+    :param X1: Test image set
+    :param X0_filename: Training image filenames
+    :param X1_filename: Test image filenames
+
+    """
     input_prep_fn = tf.keras.Sequential(
         [
             tf.keras.layers.Rescaling(scale=1 / 255),
-            tf.keras.layers.Resizing(150, 150),
+            tf.keras.layers.Resizing(170, 170),
         ]
     )
-
     for i in range(len(X0)):
-        X0[i] = input_prep_fn(tf.convert_to_tensor(X0[i]))
-    
+        if task == 1:
+            file_path = "annotations/xmls/" + X0_filename[i][0: X0_filename[i].find('.jpg')] + ".xml"
+            one_file = Path(file_path)
+            if one_file.exists():
+                box = read_content(file_path)
+                xmin = box[0]
+                ymin = box[1]
+                xmax = box[2]
+                ymax = box[3]
+                cropped = X0[i][ymin:ymax, xmin:xmax, :]
+        else:
+            cropped = X0[i]
+        X0[i] = input_prep_fn(tf.convert_to_tensor(cropped))
+
     for i in range(len(X1)):
-        X1[i] = input_prep_fn(tf.convert_to_tensor(X1[i]))
+        if task == 1:
+            file_path = "annotations/xmls/" + X1_filename[i][0: X1_filename[i].find('.jpg')] + ".xml"
+            one_file = Path(file_path)
+            print(file_path)
+            if one_file.exists():
+                box = read_content(file_path)
+                xmin = box[0]
+                ymin = box[1]
+                xmax = box[2]
+                ymax = box[3]
+                cropped = X1[i][ymin:ymax, xmin:xmax, :]
+        else:
+            cropped = X1[i]
+        X1[i] = input_prep_fn(tf.convert_to_tensor(cropped))
 
     X0 = tf.convert_to_tensor(X0)
     X1 = tf.convert_to_tensor(X1)
@@ -83,10 +118,11 @@ def preprocess(X0, X1):
     return X0, X1
 
 
-def run_task(data, epochs=None, batch_size=None):
+def run_task(task, data, epochs=None, batch_size=None):
     """
     Runs model on a given dataset.
 
+    :task: (see preprocess function)
     :param data: Input dataset to train on
 
     :return trained model
@@ -94,9 +130,9 @@ def run_task(data, epochs=None, batch_size=None):
     import model
 
     ## Retrieve data from tuple
-    X0, Y0, X1, Y1, D0, D1 = data
+    X0, Y0, X1, Y1, X0_filename, X1_filename = data
     
-    X0, X1 = preprocess(X0, X1)
+    X0, X1 = preprocess(task, X0, X1, X0_filename, X1_filename)
 
     args = model.get_default_CNN_model()
 
@@ -123,5 +159,9 @@ def run_task(data, epochs=None, batch_size=None):
 if __name__ == "__main__":
     import argparse
 
+    parser = argparse.ArgumentParser(description="Process some integers.")
+    parser.add_argument("--task",    default=1,     choices='1 2'.split(), help="task to perform")
+    args = parser.parse_args()
+
     data = get_data()
-    run_task(data)
+    run_task(args.task, data)
