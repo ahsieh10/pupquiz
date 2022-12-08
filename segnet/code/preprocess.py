@@ -3,7 +3,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import random
-import model
+import seg_classify
 
 input_dir = "data/images"
 trimap_dir = "data/annotations/trimaps"
@@ -45,7 +45,7 @@ train_targets = targets[:-num_val_samples]
 val_input_imgs = input_imgs[-num_val_samples:]
 val_targets = targets[-num_val_samples:]
 
-seg = model.segment((256,256,3), 3)
+seg = seg_classify.segment((256,256,3), 3)
 
 seg.compile(optimizer ="rmsprop", loss = "sparse_categorical_crossentropy")
 

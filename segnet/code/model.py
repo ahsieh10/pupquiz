@@ -1,5 +1,5 @@
 import tensorflow as tf
-from layers import MaxPoolWithArgmax2D, MaxUnpool2D, Encoder, Decoder
+from layers import MaxPoolWithArgmax2D, MaxUnpool2D
  
 def segment(input_shape, n_labels, kernel=3, pool_size=(2, 2)):
    inputs = tf.keras.layers.Input(shape=input_shape)

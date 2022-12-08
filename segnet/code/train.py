@@ -1,5 +1,5 @@
 import tensorflow as tf
-from model import segment
+from seg_classify import segment
 from generator import generator
 import os
  
