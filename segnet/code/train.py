@@ -2,6 +2,7 @@ import tensorflow as tf
 from model import segment
 from generator import generator
 import os
+import random
  
  
 # def fix_gpu():
@@ -16,14 +17,12 @@ def main():
    input_dir = "/Users/joedodson/Documents/CS1470/pupquiz/data/images"
    trimap_dir = "/Users/joedodson/Documents/CS1470/pupquiz/data/annotations/trimaps"
  
-   # HYPERPARAMETERS
+   # HYPERPARAMETERS           
    BATCH_SIZE = 8
    EPOCHS = 10
-   DIMS = (256, 256, 3)
-   N_LABELS = 3
- 
-   print("reading in files")
- 
+   DIMS = (256, 256)
+   N_LABELS = 3  
+
    input_image_paths = sorted(
        [os.path.join(input_dir, fname) for fname in os.listdir(input_dir) if fname.endswith(".jpg")]
    )
@@ -60,19 +59,18 @@ def main():
    print("creating generators and training the model. ")
  
    model = segment(input_shape=DIMS, n_labels=N_LABELS)
-   #print(model.summary())
- 
-   model.compile(loss="categorical_crossentropy", optimizer="adadelta", metrics=["accuracy"])
-   model.fit(
-       train_generator,
-       steps_per_epoch=100,
-       epochs=EPOCHS,
-       validation_data=val_generator,
-       validation_steps=10,
-   )
- 
+   print(model.summary())
+   
+   model.compile(loss="sparse_categorical_crossentropy", optimizer="rmsprop", metrics=["accuracy"])
+
+   print(train_input_imgs.shape, train_targets.shape)
+   model.fit(train_input_imgs, train_targets,
+        epochs=EPOCHS,
+        batch_size=BATCH_SIZE,
+        validation_data=(val_input_imgs, val_targets)
+   )   
    model.save_weights("segment_weights_" + str(EPOCHS) + ".hdf5")
    print("sava weight done..")
- 
+
 if __name__ == "__main__":
    main()
