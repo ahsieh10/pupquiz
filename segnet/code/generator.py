@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from tensorflow.keras.utils import img_to_array
+import tensorflow as tf
  
 def category_label(labels, dims, n_labels):
    x = np.zeros([dims[0], dims[1], n_labels])
@@ -21,7 +21,7 @@ def generator(img_list, mask_list, batch_size, dims, n_labels):
            if original_img is None:
                continue
            resized_img = cv2.resize(original_img, dims)
-           array_img = img_to_array(resized_img) / 255
+           array_img = tf.keras.utils.img_to_array(resized_img) / 255
            imgs.append(array_img)
  
            original_mask = cv2.imread(mask_list[index])

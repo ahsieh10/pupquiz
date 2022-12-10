@@ -1,5 +1,5 @@
 import tensorflow as tf
-from seg_classify import segment
+from model import segment
 from generator import generator
 import os
  
@@ -13,12 +13,12 @@ import os
  
 def main():
    print("beginning training")
-   input_dir = "/users/pmahable/data/pmahable/brown/pupquiz/segment/data/images"
-   trimap_dir = "/users/pmahable/data/pmahable/brown/pupquiz/segment/data/annotations/trimaps"
+   input_dir = "/Users/joedodson/Documents/CS1470/pupquiz/data/images"
+   trimap_dir = "/Users/joedodson/Documents/CS1470/pupquiz/data/annotations/trimaps"
  
    # HYPERPARAMETERS
-   BATCH_SIZE = 16
-   EPOCHS = 35
+   BATCH_SIZE = 8
+   EPOCHS = 10
    DIMS = (256, 256, 3)
    N_LABELS = 3
  
@@ -60,10 +60,10 @@ def main():
    print("creating generators and training the model. ")
  
    model = segment(input_shape=DIMS, n_labels=N_LABELS)
-   print(model.summary())
+   #print(model.summary())
  
    model.compile(loss="categorical_crossentropy", optimizer="adadelta", metrics=["accuracy"])
-   model.fit_generator(
+   model.fit(
        train_generator,
        steps_per_epoch=100,
        epochs=EPOCHS,
