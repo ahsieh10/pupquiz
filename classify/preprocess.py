@@ -13,7 +13,7 @@ def remove_background(data, filename):
     data[arr_trimap == 3] = 0
     return data
 
-def get_data():
+def get_data(dataset):
     """
     Loads "oxford_iiit_pet" training and testing datasets
 
@@ -27,17 +27,25 @@ def get_data():
 
     import tensorflow_datasets as tfds
 
+    if dataset == "stanford_dogs":
+        train_string = "[:20%]"
+    elif dataset == "oxford_iiit_pet":
+        train_string = ""
     D0, D1 = tfds.load(
-        "stanford_dogs", split=["train", "test"])
-    
+        dataset, split=["train" + train_string, "test" + train_string])
+
+    if dataset == "stanford_dogs":
+        X0_filename, X1_filename = [[r['image/filename'].decode('ascii') for r in tfds.as_numpy(D)] for D in (D0, D1)]
+    elif dataset == "oxford_iiit_pet":
+        X0_filename, X1_filename = [[r['file_name'].decode('ascii') for r in tfds.as_numpy(D)] for D in (D0, D1)]
+  
     X0, X1 = [[r['image'] for r in tfds.as_numpy(D)] for D in (D0, D1)]
-    X0_filename, X1_filename = [[r['image/filename'].decode('ascii') for r in tfds.as_numpy(D)] for D in (D0, D1)]
     Y0, Y1 = [np.array([r['label'] for r in tfds.as_numpy(D)]) for D in (D0, D1)]
 
 
     return X0, Y0, X1, Y1, X0_filename, X1_filename
 
-def image_process(X0, X1, X0_filename, X1_filename):
+def image_process(X0, X1, X0_filename, X1_filename, dataset):
     """
     Image preprocessing (image resizing, run validation set through background removal function)
 
@@ -48,43 +56,17 @@ def image_process(X0, X1, X0_filename, X1_filename):
 
     """
     input_prep_fn = tf.keras.Sequential(
-        [
-            tf.keras.layers.Rescaling(scale=1 / 255),
-            tf.keras.layers.Resizing(256, 256),
-        ]
-    )
+        [tf.keras.layers.Rescaling(scale=1 / 255),
+        tf.keras.layers.Resizing(256, 256)])
 
     for i in range(len(X0)):
-    #     if int(task) == 1:
-    #         file_path = "data/xmls/" + X0_filename[i][0: X0_filename[i].find('.jpg')] + ".xml"
-    #         one_file = Path(file_path)
-    #         if one_file.exists():
-    #             box = read_content(file_path)
-    #             xmin = box[0]
-    #             ymin = box[1]
-    #             xmax = box[2]
-    #             ymax = box[3]
-    #             cropped = X0[i][ymin:ymax, xmin:xmax, :]
-    #     else:
-    #         cropped = X0[i]
-    #    X0[i] = input_prep_fn(tf.convert_to_tensor(cropped))
+        if dataset == "oxford_iiit_pet":
+            X0[i] = remove_background(X0[i], X0_filename[i])
         X0[i] = input_prep_fn(tf.convert_to_tensor(X0[i]))
 
     for i in range(len(X1)):
-    #     if int(task) == 1:
-    #         file_path = "data/xmls/" + X1_filename[i][0: X1_filename[i].find('.jpg')] + ".xml"
-    #         one_file = Path(file_path)
-    #         if one_file.exists():
-    #             box = read_content(file_path)
-    #             xmin = box[0]
-    #             ymin = box[1]
-    #             xmax = box[2]
-    #             ymax = box[3]
-    #             cropped = X1[i][ymin:ymax, xmin:xmax, :]
-    #     else:
-    #         cropped = X1[i]
-    #    X1[i] = input_prep_fn(tf.convert_to_tensor(cropped))
-        #X1[i] = remove_background(X1[i], X1_filename[i])
+        if dataset == "oxford_iiit_pet":
+            X1[i] = remove_background(X1[i], X1_filename[i])
         X1[i] = input_prep_fn(tf.convert_to_tensor(X1[i]))
     X0 = tf.convert_to_tensor(X0)
     X1 = tf.convert_to_tensor(X1)
