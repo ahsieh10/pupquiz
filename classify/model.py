@@ -6,14 +6,14 @@ import tensorflow as tf
 ###############################################################################################
 
 
-def get_default_CNN_model():
+def get_default_CNN_model(num_of_classes):
     """
     Sets up your model architecture and compiles it using the appropriate optimizer, loss, and
     metrics.
     :returns compiled model
     """
 
-    classes = 120
+    classes = num_of_classes
 
     Conv2D = tf.keras.layers.Conv2D
     BatchNormalization = tf.keras.layers.BatchNormalization
@@ -31,7 +31,6 @@ def get_default_CNN_model():
 
     model = CustomSequential(
         [
-            tf.keras.layers.Masking(mask_value=0),
             Conv2D(16, 5, strides=(2,2), padding='same', activation='leaky_relu'),
             BatchNormalization(),
             #tf.keras.layers.LeakyReLU(),
@@ -58,7 +57,7 @@ def get_default_CNN_model():
         metrics=["categorical_accuracy"],
     )
 
-    return SimpleNamespace(model=model, epochs=12, batch_size=200)
+    return SimpleNamespace(model=model, epochs=12, batch_size=50)
 
 
 ###############################################################################################

@@ -42,7 +42,7 @@ def read_content(xml_file: str):
 ###############################################################################################
 
 
-def run_task(data, epochs=None, batch_size=None):
+def run_task(data, dataset, epochs=None, batch_size=None):
     """
     Runs model on a given dataset.
 
@@ -56,9 +56,14 @@ def run_task(data, epochs=None, batch_size=None):
     ## Retrieve data from tuple
     X0, Y0, X1, Y1, X0_filename, X1_filename = data
     
-    X0, X1 = image_process(X0, X1, X0_filename, X1_filename)
+    X0, X1 = image_process(X0, X1, X0_filename, X1_filename, dataset)
 
-    args = model.get_default_CNN_model()
+    if dataset == "stanford_dogs":
+        num_of_classes = 120
+    elif dataset == "oxford_iiit_pet":
+        num_of_classes = 37
+
+    args = model.get_default_CNN_model(num_of_classes)
 
     ## Prioritize function arguments
     if epochs is None:
@@ -74,7 +79,7 @@ def run_task(data, epochs=None, batch_size=None):
         batch_size      = batch_size,
         validation_data = (X1, Y1),
     )
-    args.model.save_weights("dog_weights.hdf5")
+    args.model.save_weights(dataset + ".hdf5")
     print("save weight done..")
 
     return args.model
@@ -83,5 +88,5 @@ def run_task(data, epochs=None, batch_size=None):
 ###############################################################################################
 
 if __name__ == "__main__":
-    data = get_data()
-    run_task(data)
+    data = get_data("oxford_iiit_pet")
+    run_task(data, "oxford_iiit_pet")
