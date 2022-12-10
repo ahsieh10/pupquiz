@@ -16,7 +16,7 @@ def mnetV2(DIMS, BREEDS):
 
 def naive_class(DIMS, BREEDS):
     model = tf.keras.layers.Sequential()
-    model.add(tf.keras.Input(input_shape=BREEDS))
+    model.add(tf.keras.Input(input_shape=DIMS))
 
     # 1st conv block
     model.add(tf.keras.layers.Conv2D(25, (5, 5), activation='relu', strides=(1, 1), padding='same'))
