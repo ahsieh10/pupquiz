@@ -1,7 +1,7 @@
 import tensorflow as tf
 import tensorflow_datasets as tfds
 
-from model import mnetV2
+from model import mnetV2, naive_class
 from preprocessing import pull_processed_data, preprocess
 
 def train(model, data, epochs=25, batch_size=None):
@@ -11,6 +11,8 @@ def train(model, data, epochs=25, batch_size=None):
     
     train_batches = pull_processed_data(data[0], batch_size)
     test_batches = pull_processed_data(data[1], batch_size)
+
+    print(model.summary())
 
     history = model.fit(train_batches,
                         epochs=epochs,
@@ -23,7 +25,7 @@ def train(model, data, epochs=25, batch_size=None):
 
 if __name__ == "__main__":
     BATCH_SIZE = 32
-    EPOCHS = 10
+    EPOCHS = 25
     DIMS = (256, 256, 3)
     BREEDS = 120
 
@@ -31,7 +33,8 @@ if __name__ == "__main__":
     
     training_data = dataset['train']
     test_data = dataset['test']
-    model = mnetV2(DIMS, BREEDS)
+    # model = mnetV2(DIMS, BREEDS)
+    model = naive_class(DIMS, BREEDS)
 
     train(model, (training_data, test_data), EPOCHS, BATCH_SIZE)
 
