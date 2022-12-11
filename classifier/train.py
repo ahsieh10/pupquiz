@@ -18,7 +18,7 @@ def train(model, data, epochs=25, batch_size=None):
                         epochs=epochs,
                         validation_data=test_batches)
     
-    model.save_weights("dog_weights.hdf5")
+    model.save_weights("mvnet_dog_weights.hdf5")
     print("save weight done..")
 
 
@@ -33,8 +33,8 @@ if __name__ == "__main__":
     
     training_data = dataset['train']
     test_data = dataset['test']
-    # model = mnetV2(DIMS, BREEDS)
-    model = naive_class(DIMS, BREEDS)
+    model = mnetV2(DIMS, BREEDS)
+    # model = naive_class(DIMS, BREEDS)
 
     train(model, (training_data, test_data), EPOCHS, BATCH_SIZE)
 

@@ -36,9 +36,5 @@ def naive_class(DIMS, BREEDS):
     # output layer
     model.add(tf.keras.layers.Dense(units=BREEDS, activation='softmax'))
 
-    # compile model
-    # model.compile(loss='categorical_crossentropy', optimizer="adam", metrics=['accuracy'])
-    # fit on data for 30 epochs
-    # model.fit_generator(train, epochs=30, validation_data=val)
     return model
 
